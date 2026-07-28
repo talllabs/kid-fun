@@ -471,6 +471,68 @@
       font-weight: 900;
     }
 
+    .compare-summary-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding: 14px;
+    }
+
+    .compare-summary-tag {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #e8faf3;
+      color: #087558;
+      font-size: .76rem;
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    .compare-expand-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 14px 14px;
+      color: var(--muted);
+      font-size: .79rem;
+      font-weight: 800;
+    }
+
+    .compare-expand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(108,76,255,.10);
+      color: var(--purple);
+      transition: transform .2s ease;
+    }
+
+    .compare-card.expanded .compare-expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .compare-card-details {
+      display: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .compare-card.expanded .compare-card-details {
+      display: block;
+    }
+
+    .compare-card {
+      cursor: pointer;
+    }
+
+    .compare-card:focus-visible {
+      outline: 3px solid rgba(108,76,255,.28);
+      outline-offset: 3px;
+    }
+
     .compare-feature-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -1217,26 +1279,56 @@
         return "special";
       };
 
-      document.getElementById("mobileComparisonCards").innerHTML = sorted.map(item => `
-        <article class="compare-card">
-          <div class="compare-card-header">
-            <div>
-              <h3>${escapeHtml(item.name)}</h3>
-              <p>${escapeHtml(item.address || "Address not listed")}</p>
-            </div>
-            <div class="compare-drive">${driveText(item.minutes)}</div>
-          </div>
-          <div class="compare-feature-grid">
-            ${fields.map(field => `
-              <div class="compare-feature-item ${valueClass(item.features[field])}">
-                <span>${escapeHtml(field)}</span>
-                <strong>${valueLabel(item.features[field])}</strong>
+      document.getElementById("mobileComparisonCards").innerHTML = sorted.map((item, index) => {
+        const yesFeatures = fields.filter(field => String(item.features[field] || "").toLowerCase() === "y");
+        const summaryTags = yesFeatures.length
+          ? yesFeatures.map(field => `<span class="compare-summary-tag">${escapeHtml(field)}</span>`).join("")
+          : `<span class="compare-summary-tag" style="background:#f2f1f7;color:#6f6b82">No confirmed features</span>`;
+
+        return `
+          <article class="compare-card" tabindex="0" role="button" aria-expanded="false" aria-controls="compare-details-${index}">
+            <div class="compare-card-header">
+              <div>
+                <h3>${escapeHtml(item.name)}</h3>
+                <p>${escapeHtml(item.address || "Address not listed")}</p>
               </div>
-            `).join("")}
-          </div>
-          ${item.notes ? `<p class="compare-notes"><strong>Other:</strong> ${escapeHtml(item.notes)}</p>` : ""}
-        </article>
-      `).join("");
+              <div class="compare-drive">${driveText(item.minutes)}</div>
+            </div>
+            <div class="compare-summary-tags">${summaryTags}</div>
+            <div class="compare-expand-hint">
+              <span>Tap to view all details</span>
+              <span class="compare-expand-icon" aria-hidden="true">⌄</span>
+            </div>
+            <div class="compare-card-details" id="compare-details-${index}">
+              <div class="compare-feature-grid">
+                ${fields.map(field => `
+                  <div class="compare-feature-item ${valueClass(item.features[field])}">
+                    <span>${escapeHtml(field)}</span>
+                    <strong>${valueLabel(item.features[field])}</strong>
+                  </div>
+                `).join("")}
+              </div>
+              ${item.notes ? `<p class="compare-notes"><strong>Other:</strong> ${escapeHtml(item.notes)}</p>` : ""}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      document.querySelectorAll("#mobileComparisonCards .compare-card").forEach(card => {
+        const toggleCard = () => {
+          const expanded = card.classList.toggle("expanded");
+          card.setAttribute("aria-expanded", String(expanded));
+          const hint = card.querySelector(".compare-expand-hint span:first-child");
+          if (hint) hint.textContent = expanded ? "Tap to hide details" : "Tap to view all details";
+        };
+        card.addEventListener("click", toggleCard);
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggleCard();
+          }
+        });
+      });
 
       const mobileSort = document.getElementById("mobileCompareSort");
       if (mobileSort) mobileSort.value = comparisonSort.key;
