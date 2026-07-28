@@ -619,6 +619,18 @@
     .mobile-compare-cards,
     .compare-sort-controls { display: none; }
 
+    @media (max-width: 699px) {
+      .compare-sort-controls,
+      .mobile-compare-cards { display: grid; }
+      .table-wrap { display: none; }
+    }
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      .compare-sort-controls { display: grid; }
+      .mobile-compare-cards { display: none; }
+      .table-wrap { display: block; }
+    }
+
     @media (min-width: 700px) {
       .hero { padding-top: 58px; }
       .table-wrap { display: block; }
@@ -781,7 +793,7 @@
       <div class="comparison-intro">
         <h2>Playground comparison</h2>
         <p id="comparisonCount"></p>
-        <p>Choose a sort option below. The table updates immediately. On mobile, rotate your phone to see the full table.</p>
+        <p>Choose a sort option below. Results update immediately. On mobile, results appear as cards. Rotate your phone to reveal the full table.</p>
       </div>
       <div class="compare-sort-controls">
         <select id="mobileCompareSort" aria-label="Sort playground comparison">
