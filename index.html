@@ -949,8 +949,19 @@
       const groups = new Map();
 
       rawItems.forEach((item, index) => {
-        const normalized = normalizeAddress(item.address);
-        const key = normalized || `__no_address_${index}`;
+        const rawAddress = String(item.address || "").trim();
+        const normalizedAddress = normalizeAddress(rawAddress);
+        const normalizedName = normalizeSearchText(item.name);
+        const hasSpecificStreetAddress = /\d/.test(rawAddress);
+
+        // Merge exact street-address matches. City-only locations such as
+        // "West Chester" remain separate unless the listing name also matches.
+        const key = normalizedAddress
+          ? hasSpecificStreetAddress
+            ? `address:${normalizedAddress}`
+            : `name-location:${normalizedName}|${normalizedAddress}`
+          : `name-only:${normalizedName || index}`;
+
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(item);
       });
