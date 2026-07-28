@@ -406,7 +406,7 @@
 
     .compare-sort-controls {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: minmax(0, 1fr);
       gap: 10px;
       margin: 16px 0;
       padding: 12px;
@@ -416,8 +416,7 @@
       box-shadow: var(--shadow);
     }
 
-    .compare-sort-controls select,
-    .compare-sort-controls button {
+    .compare-sort-controls select {
       min-height: 46px;
       border: 1px solid var(--line);
       border-radius: 12px;
@@ -425,13 +424,6 @@
       color: var(--ink);
       padding: 0 12px;
       font-weight: 800;
-    }
-
-    .compare-sort-controls button {
-      min-width: 52px;
-      background: linear-gradient(135deg, var(--blue), var(--violet));
-      color: white;
-      border-color: transparent;
     }
 
     .mobile-compare-cards {
@@ -788,7 +780,8 @@
     <section class="panel" id="compare">
       <div class="comparison-intro">
         <h2>Playground comparison</h2>
-        <p>Sort the playgrounds by drive time or any feature. On mobile, rotate your phone to see the full table.</p>
+        <p id="comparisonCount"></p>
+        <p>Choose a sort option below. The table updates immediately. On mobile, rotate your phone to see the full table.</p>
       </div>
       <div class="compare-sort-controls">
         <select id="mobileCompareSort" aria-label="Sort playground comparison">
@@ -807,7 +800,6 @@
           <option value="Baseball">Baseball</option>
           <option value="notes">Other notes</option>
         </select>
-        <button id="mobileSortDirection" type="button" aria-label="Reverse sort direction">↑</button>
       </div>
       <div class="mobile-compare-cards" id="mobileComparisonCards"></div>
       <div class="table-wrap">
@@ -1235,9 +1227,9 @@
       `).join("");
 
       const mobileSort = document.getElementById("mobileCompareSort");
-      const directionButton = document.getElementById("mobileSortDirection");
       if (mobileSort) mobileSort.value = comparisonSort.key;
-      if (directionButton) directionButton.textContent = comparisonSort.direction === "asc" ? "↑" : "↓";
+      const comparisonCount = document.getElementById("comparisonCount");
+      if (comparisonCount) comparisonCount.textContent = `${sorted.length} playground listings`;
 
       document.querySelectorAll("#comparisonTable th.sortable").forEach(headerCell => {
         headerCell.addEventListener("click", () => {
@@ -1303,10 +1295,6 @@
       renderComparison();
     });
 
-    document.getElementById("mobileSortDirection").addEventListener("click", () => {
-      comparisonSort.direction = comparisonSort.direction === "asc" ? "desc" : "asc";
-      renderComparison();
-    });
 
     renderStats();
     renderPills();
