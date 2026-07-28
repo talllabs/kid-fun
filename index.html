@@ -207,8 +207,10 @@
     }
 
     .amenity-filter-section { grid-column: 1 / -1; padding-top: 4px; border-top: 1px solid var(--line); }
-    .filter-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .clear-filter-button { border: 0; background: transparent; color: var(--blue); padding: 4px 0; font-size: .8rem; font-weight: 850; }
+    .filter-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .filter-heading-row .filter-label { flex: 0 0 auto; }
+    .clear-filter-button { margin-left: auto; max-width: 100%; white-space: nowrap; }
+    .clear-filter-button { border: 1px solid var(--blue); border-radius: 999px; background: white; color: var(--blue); padding: 8px 12px; font-size: .76rem; font-weight: 900; letter-spacing: .03em; }
     .clear-filter-button:disabled { color: var(--muted); opacity: .55; cursor: default; }
     .amenity-buttons .filter-button { min-height: 40px; padding: 8px 11px; font-size: .79rem; }
 
@@ -518,7 +520,7 @@
     }
 
     .table-wrap {
-      display: none;
+      display: block;
       overflow-x: auto;
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -616,10 +618,11 @@
       text-align: center;
     }
 
+    .mobile-compare-cards,
+    .compare-sort-controls { display: none; }
+
     @media (min-width: 700px) {
       .hero { padding-top: 58px; }
-      .mobile-compare-cards,
-      .compare-sort-controls { display: none; }
       .table-wrap { display: block; }
       .stats { grid-template-columns: repeat(4, 1fr); }
       .controls {
@@ -694,10 +697,10 @@
         <div class="category-pills" id="categoryPills"></div>
         <div class="filter-section amenity-filter-section">
           <div class="filter-heading-row">
-            <p class="filter-label">Playground amenities</p>
-            <button class="clear-filter-button" id="clearAmenityFilters" type="button">Clear</button>
+            <p class="filter-label">Features</p>
+            <button class="clear-filter-button" id="clearAllFilters" type="button">CLEAR ALL FILTERS</button>
           </div>
-          <div class="filter-buttons amenity-buttons" id="amenityFilterButtons" aria-label="Playground amenity filters"></div>
+          <div class="filter-buttons amenity-buttons" id="amenityFilterButtons" aria-label="Feature filters"></div>
         </div>
       </div>
 
@@ -713,7 +716,7 @@
     <section class="panel" id="compare">
       <div class="comparison-intro">
         <h2>Playground comparison</h2>
-        <p>Sort the playgrounds by drive time or any feature. On mobile, each playground appears as an easy-to-scan card.</p>
+        <p>Sort the playgrounds by drive time or any feature. On mobile, rotate your phone to see the full table.</p>
       </div>
       <div class="compare-sort-controls">
         <select id="mobileCompareSort" aria-label="Sort playground comparison">
@@ -806,9 +809,11 @@
 
       document.querySelectorAll(".pill").forEach(button => {
         button.addEventListener("click", () => {
-          activeCategory = button.dataset.category;
+          const selected = button.dataset.category;
+          activeCategory = activeCategory === selected && selected !== "All" ? "All" : selected;
           renderPills();
           renderCards();
+          renderAmenityFilters();
         });
       });
     }
@@ -819,17 +824,46 @@
       return !["n", "no", "false", "0"].includes(text);
     }
 
+    function normalizeSearchText(value) {
+      return String(value ?? "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
     function searchableText(item) {
-      const searchableParts = [item.name, item.address, item.category, item.fee, item.details, item.notes];
+      const searchableParts = [
+        item.name,
+        item.address,
+        item.category,
+        item.fee,
+        item.details,
+        item.notes,
+        item.minutes
+      ];
+
       if (item.features) {
         Object.entries(item.features).forEach(([label, value]) => {
           if (isPositiveFeature(value)) {
             searchableParts.push(label);
-            if (!["y", "yes"].includes(String(value).trim().toLowerCase())) searchableParts.push(value);
+            if (!["y", "yes", "true", "1"].includes(String(value).trim().toLowerCase())) {
+              searchableParts.push(value);
+            }
           }
         });
       }
-      return searchableParts.filter(value => value !== null && value !== undefined && value !== "").join(" ").toLowerCase();
+
+      return normalizeSearchText(searchableParts.filter(value => value !== null && value !== undefined && value !== "").join(" "));
+    }
+
+    function matchesSearch(item, rawQuery) {
+      const query = normalizeSearchText(rawQuery);
+      if (!query) return true;
+      const recordText = searchableText(item);
+      const terms = query.split(/\s+/).filter(Boolean);
+      return terms.every(term => recordText.includes(term));
     }
 
     function renderAmenityFilters() {
@@ -843,7 +877,11 @@
           renderCards();
         });
       });
-      document.getElementById("clearAmenityFilters").disabled = activeAmenities.size === 0;
+      const clearButton = document.getElementById("clearAllFilters");
+      if (clearButton) {
+        const searchHasValue = document.getElementById("searchInput").value.trim().length > 0;
+        clearButton.disabled = activeAmenities.size === 0 && activeCategory === "All" && activeMaxMinutes === 999 && activeCostFilter === "all" && !searchHasValue;
+      }
     }
 
     function isFree(item) {
@@ -858,7 +896,7 @@
     }
 
     function filteredItems() {
-      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const query = document.getElementById("searchInput").value;
       const maxMinutes = activeMaxMinutes;
       const freeOnly = activeCostFilter === "free";
 
@@ -867,7 +905,7 @@
           activeCategory === "All" ||
           activeCategory === item.category;
         const timeMatch = numericMinutes(item.minutes) <= maxMinutes;
-        const queryMatch = !query || searchableText(item).includes(query);
+        const queryMatch = matchesSearch(item, query);
         const costMatch = !freeOnly || isFree(item);
         const amenityMatch = activeAmenities.size === 0 || (item.category === "Playgrounds" && item.features && [...activeAmenities].every(amenity => isPositiveFeature(item.features[amenity])));
         return categoryMatch && timeMatch && queryMatch && costMatch && amenityMatch;
@@ -1082,28 +1120,40 @@
       });
     });
 
-    document.getElementById("searchInput").addEventListener("input", renderCards);
-    document.getElementById("clearAmenityFilters").addEventListener("click", () => {
+    document.getElementById("searchInput").addEventListener("input", () => {
+      renderCards();
+      renderAmenityFilters();
+    });
+    document.getElementById("clearAllFilters").addEventListener("click", () => {
       activeAmenities.clear();
+      activeCategory = "All";
+      activeMaxMinutes = 999;
+      activeCostFilter = "all";
+      document.getElementById("searchInput").value = "";
+      document.querySelectorAll("#timeFilterButtons .filter-button").forEach(item => item.classList.toggle("active", item.dataset.minutes === "999"));
+      document.querySelectorAll("#costFilterButtons .filter-button").forEach(item => item.classList.toggle("active", item.dataset.cost === "all"));
+      renderPills();
       renderAmenityFilters();
       renderCards();
     });
 
     document.querySelectorAll("#timeFilterButtons .filter-button").forEach(button => {
       button.addEventListener("click", () => {
-        activeMaxMinutes = Number(button.dataset.minutes);
-        document.querySelectorAll("#timeFilterButtons .filter-button").forEach(item => item.classList.remove("active"));
-        button.classList.add("active");
+        const selected = Number(button.dataset.minutes);
+        activeMaxMinutes = activeMaxMinutes === selected && selected !== 999 ? 999 : selected;
+        document.querySelectorAll("#timeFilterButtons .filter-button").forEach(item => item.classList.toggle("active", Number(item.dataset.minutes) === activeMaxMinutes));
         renderCards();
+        renderAmenityFilters();
       });
     });
 
     document.querySelectorAll("#costFilterButtons .filter-button").forEach(button => {
       button.addEventListener("click", () => {
-        activeCostFilter = button.dataset.cost;
-        document.querySelectorAll("#costFilterButtons .filter-button").forEach(item => item.classList.remove("active"));
-        button.classList.add("active");
+        const selected = button.dataset.cost;
+        activeCostFilter = activeCostFilter === selected && selected !== "all" ? "all" : selected;
+        document.querySelectorAll("#costFilterButtons .filter-button").forEach(item => item.classList.toggle("active", item.dataset.cost === activeCostFilter));
         renderCards();
+        renderAmenityFilters();
       });
     });
 
