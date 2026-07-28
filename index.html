@@ -855,12 +855,12 @@
       <div class="comparison-intro">
         <h2>Playground comparison</h2>
         <p id="comparisonCount"></p>
-        <p>Choose a sort option below. Results update immediately. On mobile, results appear as cards. Rotate your phone to reveal the full table.</p>
+        <p>Choose a feature to show only matching playgrounds, or view all by drive time or name. Results and the location count update immediately. On mobile, results appear as cards. Rotate your phone to reveal the full table.</p>
       </div>
       <div class="compare-sort-controls">
         <select id="mobileCompareSort" aria-label="Sort playground comparison">
-          <option value="name">Playground name</option>
-          <option value="minutes" selected>Drive time</option>
+          <option value="minutes" selected>All playgrounds — drive time</option>
+          <option value="name">All playgrounds — name</option>
           <option value="Bathroom">Bathroom</option>
           <option value="Shade">Shade</option>
           <option value="Pavilion">Pavilion</option>
@@ -1224,6 +1224,7 @@
     }
 
     let comparisonSort = { key: "minutes", direction: "asc" };
+    let comparisonFilter = "all";
 
     function comparisonSortValue(item, key) {
       if (key === "name") return item.name || "";
@@ -1252,7 +1253,17 @@
           <th class="sortable" data-sort="notes">Other ${sortIndicator("notes")}</th>
         </tr></thead>`;
 
-      const sorted = DATA.Playgrounds.slice().sort((a, b) => {
+      const hasSelectedFeature = (item, filterKey) => {
+        if (filterKey === "all") return true;
+        if (filterKey === "notes") return Boolean(String(item.notes || "").trim());
+        const value = String(item.features[filterKey] || "").trim().toLowerCase();
+        // A confirmed Yes or a descriptive value such as “minimal” counts as having the feature.
+        return value !== "" && value !== "n" && value !== "no";
+      };
+
+      const filtered = DATA.Playgrounds.filter(item => hasSelectedFeature(item, comparisonFilter));
+
+      const sorted = filtered.slice().sort((a, b) => {
         const aValue = comparisonSortValue(a, comparisonSort.key);
         const bValue = comparisonSortValue(b, comparisonSort.key);
         let result;
@@ -1343,13 +1354,21 @@
       });
 
       const mobileSort = document.getElementById("mobileCompareSort");
-      if (mobileSort) mobileSort.value = comparisonSort.key;
+      if (mobileSort) mobileSort.value = comparisonFilter === "all" ? comparisonSort.key : comparisonFilter;
       const comparisonCount = document.getElementById("comparisonCount");
-      if (comparisonCount) comparisonCount.textContent = `${sorted.length} playground listings`;
+      if (comparisonCount) {
+        const label = comparisonFilter === "all"
+          ? "playground locations"
+          : comparisonFilter === "notes"
+            ? "locations with additional notes"
+            : `locations with ${comparisonFilter}`;
+        comparisonCount.textContent = `${sorted.length} ${label}`;
+      }
 
       document.querySelectorAll("#comparisonTable th.sortable").forEach(headerCell => {
         headerCell.addEventListener("click", () => {
           const key = headerCell.dataset.sort;
+          comparisonFilter = "all";
           if (comparisonSort.key === key) {
             comparisonSort.direction = comparisonSort.direction === "asc" ? "desc" : "asc";
           } else {
@@ -1410,7 +1429,13 @@
 
     function applyMobileComparisonSort(event) {
       const selectedKey = event.currentTarget.value;
-      comparisonSort = { key: selectedKey, direction: "asc" };
+      if (selectedKey === "name" || selectedKey === "minutes") {
+        comparisonFilter = "all";
+        comparisonSort = { key: selectedKey, direction: "asc" };
+      } else {
+        comparisonFilter = selectedKey;
+        comparisonSort = { key: "minutes", direction: "asc" };
+      }
       renderComparison();
     }
 
