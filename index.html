@@ -152,8 +152,7 @@
       gap: 8px;
     }
 
-    .search-wrap input,
-    .control-select {
+    .search-wrap input {
       width: 100%;
       min-height: 48px;
       padding: 0 14px;
@@ -164,30 +163,78 @@
       outline: none;
     }
 
-    .search-wrap input:focus,
-    .control-select:focus {
+    .search-wrap input:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(37,99,235,.12);
     }
 
-    .category-pills {
-      display: flex;
+    .filter-section {
+      display: grid;
       gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
     }
 
-    .category-pills::-webkit-scrollbar { display: none; }
+    .filter-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 850;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
 
-    .pill {
-      flex: 0 0 auto;
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-button {
+      min-height: 42px;
       border: 1px solid var(--line);
       border-radius: 999px;
       background: white;
+      color: var(--ink);
       padding: 9px 13px;
-      font-size: .88rem;
+      font-size: .84rem;
+      font-weight: 850;
+    }
+
+    .filter-button.active {
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 8px 18px rgba(94, 74, 214, .2);
+    }
+
+    .amenity-filter-section { grid-column: 1 / -1; padding-top: 4px; border-top: 1px solid var(--line); }
+    .filter-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .clear-filter-button { border: 0; background: transparent; color: var(--blue); padding: 4px 0; font-size: .8rem; font-weight: 850; }
+    .clear-filter-button:disabled { color: var(--muted); opacity: .55; cursor: default; }
+    .amenity-buttons .filter-button { min-height: 40px; padding: 8px 11px; font-size: .79rem; }
+
+    .category-pills {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+
+    .pill {
+      grid-column: span 2;
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      padding: 10px 6px;
+      font-size: clamp(.72rem, 3.2vw, .88rem);
       font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pill:nth-child(4),
+    .pill:nth-child(5) {
+      grid-column: span 3;
     }
 
     .pill.active {
@@ -349,7 +396,129 @@
       line-height: 1.55;
     }
 
+    .compare-sort-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin: 16px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow);
+    }
+
+    .compare-sort-controls select,
+    .compare-sort-controls button {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
+      color: var(--ink);
+      padding: 0 12px;
+      font-weight: 800;
+    }
+
+    .compare-sort-controls button {
+      min-width: 52px;
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: white;
+      border-color: transparent;
+    }
+
+    .mobile-compare-cards {
+      display: grid;
+      gap: 12px;
+    }
+
+    .compare-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      box-shadow: 0 10px 24px rgba(49,35,105,.08);
+      overflow: hidden;
+    }
+
+    .compare-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(108,76,255,.10), rgba(18,184,166,.08));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .compare-card-header h3 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+      line-height: 1.25;
+    }
+
+    .compare-card-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .compare-drive {
+      flex: 0 0 auto;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: white;
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .compare-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+      padding: 14px;
+    }
+
+    .compare-feature-item {
+      min-width: 0;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f7f7fc;
+    }
+
+    .compare-feature-item span {
+      display: block;
+      color: var(--muted);
+      font-size: .71rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      line-height: 1.25;
+    }
+
+    .compare-feature-item strong {
+      display: block;
+      margin-top: 4px;
+      font-size: .88rem;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .compare-feature-item.yes { background: #e8faf3; color: #087558; }
+    .compare-feature-item.no { color: #9692a5; }
+    .compare-feature-item.special { background: #fff6d8; color: #745500; }
+
+    .compare-notes {
+      margin: 0 14px 14px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: #fff1f3;
+      color: #8b3340;
+      font-size: .84rem;
+      line-height: 1.45;
+    }
+
     .table-wrap {
+      display: none;
       overflow-x: auto;
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -449,12 +618,26 @@
 
     @media (min-width: 700px) {
       .hero { padding-top: 58px; }
+      .mobile-compare-cards,
+      .compare-sort-controls { display: none; }
+      .table-wrap { display: block; }
       .stats { grid-template-columns: repeat(4, 1fr); }
       .controls {
         grid-template-columns: minmax(280px, 1fr) 190px;
         align-items: center;
       }
-      .category-pills { grid-column: 1 / -1; }
+      .category-pills {
+        grid-column: 1 / -1;
+        display: flex;
+        width: auto;
+      }
+      .pill,
+      .pill:nth-child(4),
+      .pill:nth-child(5) {
+        width: auto;
+        padding: 9px 13px;
+        font-size: .88rem;
+      }
       .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
@@ -472,7 +655,7 @@
     <div class="site-shell">
       <span class="eyebrow">Family guide near West Chester University</span>
       <h1>Kid adventures within about one hour of WCU.</h1>
-      <p>Search playgrounds, animal experiences, indoor activities, and outdoor destinations. Filter by drive time, compare playground features, and save ideas for later.</p>
+      <p>Search playgrounds, animal experiences, indoor activities, and outdoor destinations. Filter by drive time, cost, category, or specific amenities, then compare playground features.</p>
       <div class="stats" id="stats"></div>
     </div>
   </header>
@@ -490,19 +673,32 @@
         <div class="search-wrap">
           <input id="searchInput" type="search" placeholder="Search names, towns, features, or details" aria-label="Search places">
         </div>
-        <select id="timeFilter" class="control-select" aria-label="Maximum drive time">
-          <option value="999">Any drive time</option>
-          <option value="15">15 minutes or less</option>
-          <option value="20">20 minutes or less</option>
-          <option value="30">30 minutes or less</option>
-          <option value="45">45 minutes or less</option>
-          <option value="60">60 minutes or less</option>
-        </select>
-        <select id="freeFilter" class="control-select" aria-label="Cost filter">
-          <option value="all">Any cost</option>
-          <option value="free">Free only</option>
-        </select>
+        <div class="filter-section">
+          <p class="filter-label">Drive time</p>
+          <div class="filter-buttons" id="timeFilterButtons" aria-label="Maximum drive time">
+            <button class="filter-button active" type="button" data-minutes="999">Any</button>
+            <button class="filter-button" type="button" data-minutes="15">15 min</button>
+            <button class="filter-button" type="button" data-minutes="20">20 min</button>
+            <button class="filter-button" type="button" data-minutes="30">30 min</button>
+            <button class="filter-button" type="button" data-minutes="45">45 min</button>
+            <button class="filter-button" type="button" data-minutes="60">60 min</button>
+          </div>
+        </div>
+        <div class="filter-section">
+          <p class="filter-label">Cost</p>
+          <div class="filter-buttons" id="costFilterButtons" aria-label="Cost filter">
+            <button class="filter-button active" type="button" data-cost="all">Any cost</button>
+            <button class="filter-button" type="button" data-cost="free">Free only</button>
+          </div>
+        </div>
         <div class="category-pills" id="categoryPills"></div>
+        <div class="filter-section amenity-filter-section">
+          <div class="filter-heading-row">
+            <p class="filter-label">Playground amenities</p>
+            <button class="clear-filter-button" id="clearAmenityFilters" type="button">Clear</button>
+          </div>
+          <div class="filter-buttons amenity-buttons" id="amenityFilterButtons" aria-label="Playground amenity filters"></div>
+        </div>
       </div>
 
       <div class="results-meta">
@@ -517,8 +713,28 @@
     <section class="panel" id="compare">
       <div class="comparison-intro">
         <h2>Playground comparison</h2>
-        <p>Swipe sideways on a phone to compare bathrooms, shade, pavilions, splash features, trails, sports facilities, fencing, and other notes.</p>
+        <p>Sort the playgrounds by drive time or any feature. On mobile, each playground appears as an easy-to-scan card.</p>
       </div>
+      <div class="compare-sort-controls">
+        <select id="mobileCompareSort" aria-label="Sort playground comparison">
+          <option value="name">Playground name</option>
+          <option value="minutes" selected>Drive time</option>
+          <option value="Bathroom">Bathroom</option>
+          <option value="Shade">Shade</option>
+          <option value="Pavilion">Pavilion</option>
+          <option value="Splash Pad">Splash pad</option>
+          <option value="Paved Walking Trail">Paved walking trail</option>
+          <option value="Water to Wade In">Water to wade in</option>
+          <option value="Fenced In">Fenced in</option>
+          <option value="Tennis">Tennis</option>
+          <option value="Basketball">Basketball</option>
+          <option value="Volleyball">Volleyball</option>
+          <option value="Baseball">Baseball</option>
+          <option value="notes">Other notes</option>
+        </select>
+        <button id="mobileSortDirection" type="button" aria-label="Reverse sort direction">↑</button>
+      </div>
+      <div class="mobile-compare-cards" id="mobileComparisonCards"></div>
       <div class="table-wrap">
         <table id="comparisonTable"></table>
       </div>
@@ -540,11 +756,28 @@
     };
 
     let activeCategory = "All";
+    let activeMaxMinutes = 999;
+    let activeCostFilter = "all";
+    const activeAmenities = new Set();
+    const playgroundAmenities = ["Bathroom", "Shade", "Pavilion", "Splash Pad", "Paved Walking Trail", "Water to Wade In", "Fenced In", "Tennis", "Basketball", "Volleyball", "Baseball"];
 
     function numericMinutes(value) {
-      if (typeof value === "number") return value;
-      const match = String(value || "").match(/\d+/);
-      return match ? Number(match[0]) : 999;
+      if (typeof value === "number" && Number.isFinite(value)) return value;
+
+      const text = String(value || "").trim().toLowerCase();
+      if (!text) return 999;
+
+      const hourMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours)\b/);
+      const minuteMatch = text.match(/(\d+)\s*(?:m|min|mins|minute|minutes)\b/);
+
+      if (hourMatch) {
+        const hours = Number(hourMatch[1]);
+        const minutes = minuteMatch ? Number(minuteMatch[1]) : 0;
+        return Math.round((hours * 60) + minutes);
+      }
+
+      const numberMatch = text.match(/\d+/);
+      return numberMatch ? Number(numberMatch[0]) : 999;
     }
 
     function allItems() {
@@ -580,8 +813,37 @@
       });
     }
 
+    function isPositiveFeature(value) {
+      if (value === null || value === undefined || value === "") return false;
+      const text = String(value).trim().toLowerCase();
+      return !["n", "no", "false", "0"].includes(text);
+    }
+
     function searchableText(item) {
-      return JSON.stringify(item).toLowerCase();
+      const searchableParts = [item.name, item.address, item.category, item.fee, item.details, item.notes];
+      if (item.features) {
+        Object.entries(item.features).forEach(([label, value]) => {
+          if (isPositiveFeature(value)) {
+            searchableParts.push(label);
+            if (!["y", "yes"].includes(String(value).trim().toLowerCase())) searchableParts.push(value);
+          }
+        });
+      }
+      return searchableParts.filter(value => value !== null && value !== undefined && value !== "").join(" ").toLowerCase();
+    }
+
+    function renderAmenityFilters() {
+      const container = document.getElementById("amenityFilterButtons");
+      container.innerHTML = playgroundAmenities.map(amenity => `<button class="filter-button ${activeAmenities.has(amenity) ? "active" : ""}" type="button" data-amenity="${amenity}">${amenity}</button>`).join("");
+      container.querySelectorAll(".filter-button").forEach(button => {
+        button.addEventListener("click", () => {
+          const amenity = button.dataset.amenity;
+          activeAmenities.has(amenity) ? activeAmenities.delete(amenity) : activeAmenities.add(amenity);
+          renderAmenityFilters();
+          renderCards();
+        });
+      });
+      document.getElementById("clearAmenityFilters").disabled = activeAmenities.size === 0;
     }
 
     function isFree(item) {
@@ -597,8 +859,8 @@
 
     function filteredItems() {
       const query = document.getElementById("searchInput").value.trim().toLowerCase();
-      const maxMinutes = Number(document.getElementById("timeFilter").value);
-      const freeOnly = document.getElementById("freeFilter").value === "free";
+      const maxMinutes = activeMaxMinutes;
+      const freeOnly = activeCostFilter === "free";
 
       return allItems().filter(item => {
         const categoryMatch =
@@ -607,7 +869,8 @@
         const timeMatch = numericMinutes(item.minutes) <= maxMinutes;
         const queryMatch = !query || searchableText(item).includes(query);
         const costMatch = !freeOnly || isFree(item);
-        return categoryMatch && timeMatch && queryMatch && costMatch;
+        const amenityMatch = activeAmenities.size === 0 || (item.category === "Playgrounds" && item.features && [...activeAmenities].every(amenity => isPositiveFeature(item.features[amenity])));
+        return categoryMatch && timeMatch && queryMatch && costMatch && amenityMatch;
       }).sort((a, b) => numericMinutes(a.minutes) - numericMinutes(b.minutes));
     }
 
@@ -636,8 +899,8 @@
     }
 
     function driveText(value) {
-      if (typeof value === "number") return `${value} min`;
-      return escapeHtml(value || "Time not listed");
+      const minutes = numericMinutes(value);
+      return minutes === 999 ? "Time not listed" : `${minutes} min drive`;
     }
 
     function cardDetails(item) {
@@ -755,6 +1018,48 @@
 
       document.getElementById("comparisonTable").innerHTML = header + `<tbody>${body}</tbody>`;
 
+      const valueLabel = value => {
+        if (value === null || value === undefined || value === "") return "Not listed";
+        const lower = String(value).toLowerCase();
+        if (lower === "y") return "Yes";
+        if (lower === "n") return "No";
+        return escapeHtml(value);
+      };
+
+      const valueClass = value => {
+        if (value === null || value === undefined || value === "") return "no";
+        const lower = String(value).toLowerCase();
+        if (lower === "y") return "yes";
+        if (lower === "n") return "no";
+        return "special";
+      };
+
+      document.getElementById("mobileComparisonCards").innerHTML = sorted.map(item => `
+        <article class="compare-card">
+          <div class="compare-card-header">
+            <div>
+              <h3>${escapeHtml(item.name)}</h3>
+              <p>${escapeHtml(item.address || "Address not listed")}</p>
+            </div>
+            <div class="compare-drive">${driveText(item.minutes)}</div>
+          </div>
+          <div class="compare-feature-grid">
+            ${fields.map(field => `
+              <div class="compare-feature-item ${valueClass(item.features[field])}">
+                <span>${escapeHtml(field)}</span>
+                <strong>${valueLabel(item.features[field])}</strong>
+              </div>
+            `).join("")}
+          </div>
+          ${item.notes ? `<p class="compare-notes"><strong>Other:</strong> ${escapeHtml(item.notes)}</p>` : ""}
+        </article>
+      `).join("");
+
+      const mobileSort = document.getElementById("mobileCompareSort");
+      const directionButton = document.getElementById("mobileSortDirection");
+      if (mobileSort) mobileSort.value = comparisonSort.key;
+      if (directionButton) directionButton.textContent = comparisonSort.direction === "asc" ? "↑" : "↓";
+
       document.querySelectorAll("#comparisonTable th.sortable").forEach(headerCell => {
         headerCell.addEventListener("click", () => {
           const key = headerCell.dataset.sort;
@@ -778,11 +1083,43 @@
     });
 
     document.getElementById("searchInput").addEventListener("input", renderCards);
-    document.getElementById("timeFilter").addEventListener("change", renderCards);
-    document.getElementById("freeFilter").addEventListener("change", renderCards);
+    document.getElementById("clearAmenityFilters").addEventListener("click", () => {
+      activeAmenities.clear();
+      renderAmenityFilters();
+      renderCards();
+    });
+
+    document.querySelectorAll("#timeFilterButtons .filter-button").forEach(button => {
+      button.addEventListener("click", () => {
+        activeMaxMinutes = Number(button.dataset.minutes);
+        document.querySelectorAll("#timeFilterButtons .filter-button").forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+        renderCards();
+      });
+    });
+
+    document.querySelectorAll("#costFilterButtons .filter-button").forEach(button => {
+      button.addEventListener("click", () => {
+        activeCostFilter = button.dataset.cost;
+        document.querySelectorAll("#costFilterButtons .filter-button").forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+        renderCards();
+      });
+    });
+
+    document.getElementById("mobileCompareSort").addEventListener("change", event => {
+      comparisonSort = { key: event.target.value, direction: "asc" };
+      renderComparison();
+    });
+
+    document.getElementById("mobileSortDirection").addEventListener("click", () => {
+      comparisonSort.direction = comparisonSort.direction === "asc" ? "desc" : "asc";
+      renderComparison();
+    });
 
     renderStats();
     renderPills();
+    renderAmenityFilters();
     renderCards();
     renderComparison();
   </script>
