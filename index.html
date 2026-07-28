@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A mobile-first guide to kid-friendly places within about one hour of West Chester University.">
+  <title>Kid Adventures Near WCU</title>
+  <style>
+    :root {
+      --ink: #17152f;
+      --muted: #6f6b82;
+      --paper: #f7f5ff;
+      --surface: #ffffff;
+      --line: #e7e2f2;
+      --blue: #6c4cff;
+      --teal: #12b8a6;
+      --yellow: #ffcf5c;
+      --coral: #ff6b7a;
+      --green: #18a875;
+      --violet: #9b6dff;
+      --shadow: 0 16px 38px rgba(49, 35, 105, 0.12);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(155,109,255,.22), transparent 30rem),
+        radial-gradient(circle at 96% 8%, rgba(18,184,166,.18), transparent 28rem),
+        radial-gradient(circle at 50% 95%, rgba(255,207,92,.13), transparent 32rem),
+        var(--paper);
+      color: var(--ink);
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+
+    .site-shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 34px 0 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(108,76,255,.14), rgba(18,184,166,.12));
+      color: var(--blue);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2.2rem, 9vw, 4.9rem);
+      line-height: .94;
+      letter-spacing: -.055em;
+      max-width: 850px;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: clamp(1rem, 3.7vw, 1.25rem);
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .stat {
+      padding: 15px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.84);
+      border-radius: 16px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.4rem;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .main-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 10px 0;
+      background: rgba(255,253,248,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(223,231,234,.8);
+    }
+
+    .tab-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .tab-button {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      color: var(--ink);
+      padding: 12px 10px;
+      font-weight: 800;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: white;
+      border-color: transparent;
+    }
+
+    .panel { display: none; padding: 24px 0 70px; }
+    .panel.active { display: block; }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow);
+    }
+
+    .search-wrap {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-wrap input,
+    .control-select {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: white;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search-wrap input:focus,
+    .control-select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    .category-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .category-pills::-webkit-scrollbar { display: none; }
+
+    .pill {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      padding: 9px 13px;
+      font-size: .88rem;
+      font-weight: 800;
+    }
+
+    .pill.active {
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      border-color: transparent;
+      color: white;
+    }
+
+    .results-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: end;
+      margin: 18px 0 12px;
+    }
+
+    .results-meta h2 {
+      margin: 0;
+      font-size: clamp(1.45rem, 5vw, 2rem);
+    }
+
+    .results-meta p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .cards {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 8px 20px rgba(23,50,77,.06);
+      overflow: hidden;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 18px 8px;
+    }
+
+    .category-tag {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #eef4ff;
+      color: var(--blue);
+      font-size: .74rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .card h3 {
+      margin: 8px 0 5px;
+      font-size: 1.16rem;
+      line-height: 1.25;
+    }
+
+    .address {
+      margin: 0;
+      color: var(--muted);
+      font-size: .91rem;
+      line-height: 1.45;
+    }
+
+    .time-badge {
+      flex: 0 0 auto;
+      min-width: 64px;
+      align-self: start;
+      padding: 9px 8px;
+      border-radius: 14px;
+      background: #f5fbf8;
+      color: var(--green);
+      text-align: center;
+      font-weight: 900;
+      font-size: .82rem;
+    }
+
+    .card-body {
+      padding: 10px 18px 17px;
+    }
+
+    .detail-line {
+      margin: 5px 0 0;
+      color: #40566a;
+      line-height: 1.5;
+      font-size: .92rem;
+    }
+
+    .detail-line strong { color: var(--ink); }
+
+    .feature-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    .feature {
+      padding: 6px 9px;
+      border-radius: 10px;
+      background: #f4f7f8;
+      color: #43596b;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    .feature.yes { background: #e9f8ef; color: #267047; }
+    .feature.special { background: #fff5d7; color: #785a00; }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 0 18px 18px;
+    }
+
+    .map-link {
+      min-height: 42px;
+      border-radius: 12px;
+      font-weight: 850;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--ink), #34305f);
+      color: white;
+      padding: 0 14px;
+    }
+
+    .empty-state {
+      padding: 34px 20px;
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: white;
+    }
+
+    .comparison-intro {
+      margin-bottom: 16px;
+    }
+
+    .comparison-intro h2 {
+      margin: 0 0 7px;
+      font-size: clamp(1.6rem, 6vw, 2.4rem);
+    }
+
+    .comparison-intro p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: max-content;
+      min-width: 100%;
+      font-size: .85rem;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: linear-gradient(135deg, var(--ink), #34305f);
+      color: white;
+      font-size: .76rem;
+      letter-spacing: .02em;
+    }
+
+    th:first-child, td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      text-align: left;
+      min-width: 215px;
+      white-space: normal;
+    }
+
+    td:first-child {
+      background: white;
+      font-weight: 800;
+    }
+
+    th:first-child { z-index: 5; }
+
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: background .2s ease;
+    }
+
+    th.sortable:hover { background: #403a73; }
+
+    .sort-indicator {
+      display: inline-block;
+      margin-left: 5px;
+      opacity: .72;
+      font-size: .72rem;
+    }
+
+    .free-badge {
+      display: inline-flex;
+      margin-top: 9px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #dffcef, #e4fbf8);
+      color: #087558;
+      font-size: .74rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .cell-yes { color: #267047; font-weight: 900; }
+    .cell-no { color: #9aa7b1; }
+    .cell-special { color: #785a00; font-weight: 800; }
+
+    .source-note {
+      margin: 20px 0 0;
+      padding: 14px 16px;
+      border-radius: 15px;
+      background: #f7f9fa;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      padding: 0 0 36px;
+      color: var(--muted);
+      font-size: .82rem;
+      text-align: center;
+    }
+
+    @media (min-width: 700px) {
+      .hero { padding-top: 58px; }
+      .stats { grid-template-columns: repeat(4, 1fr); }
+      .controls {
+        grid-template-columns: minmax(280px, 1fr) 190px;
+        align-items: center;
+      }
+      .category-pills { grid-column: 1 / -1; }
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (min-width: 1050px) {
+      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .controls {
+        grid-template-columns: minmax(320px, 1fr) 190px 170px auto;
+      }
+      .category-pills { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="site-shell">
+      <span class="eyebrow">Family guide near West Chester University</span>
+      <h1>Kid adventures within about one hour of WCU.</h1>
+      <p>Search playgrounds, animal experiences, indoor activities, and outdoor destinations. Filter by drive time, compare playground features, and save ideas for later.</p>
+      <div class="stats" id="stats"></div>
+    </div>
+  </header>
+
+  <nav class="main-tabs" aria-label="Website sections">
+    <div class="site-shell tab-row">
+      <button class="tab-button active" data-tab="explore">Explore All Places</button>
+      <button class="tab-button" data-tab="compare">Compare Playgrounds</button>
+    </div>
+  </nav>
+
+  <main class="site-shell">
+    <section class="panel active" id="explore">
+      <div class="controls">
+        <div class="search-wrap">
+          <input id="searchInput" type="search" placeholder="Search names, towns, features, or details" aria-label="Search places">
+        </div>
+        <select id="timeFilter" class="control-select" aria-label="Maximum drive time">
+          <option value="999">Any drive time</option>
+          <option value="15">15 minutes or less</option>
+          <option value="20">20 minutes or less</option>
+          <option value="30">30 minutes or less</option>
+          <option value="45">45 minutes or less</option>
+          <option value="60">60 minutes or less</option>
+        </select>
+        <select id="freeFilter" class="control-select" aria-label="Cost filter">
+          <option value="all">Any cost</option>
+          <option value="free">Free only</option>
+        </select>
+        <div class="category-pills" id="categoryPills"></div>
+      </div>
+
+      <div class="results-meta">
+        <div>
+          <h2 id="resultsTitle">All places</h2>
+          <p id="resultsCount"></p>
+        </div>
+      </div>
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <section class="panel" id="compare">
+      <div class="comparison-intro">
+        <h2>Playground comparison</h2>
+        <p>Swipe sideways on a phone to compare bathrooms, shade, pavilions, splash features, trails, sports facilities, fencing, and other notes.</p>
+      </div>
+      <div class="table-wrap">
+        <table id="comparisonTable"></table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-shell">
+    Drive times, fees, schedules, and amenities can change. Confirm details directly before visiting.
+  </footer>
+
+  <script>
+    const DATA = {"Playgrounds": [{"category": "Playgrounds", "name": "Everhart Park", "address": "West Chester", "minutes": 4, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "N", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "John O Green Memorial Park", "address": "West Chester", "minutes": 4, "features": {"Bathroom": "N", "Shade": "N", "Pavilion": "N", "Splash Pad": "Y", "Paved Walking Trail": "N", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "Y", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Hoopes Park", "address": "West Chester", "minutes": 7, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "N", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "N", "Baseball": "Y"}, "notes": null}, {"category": "Playgrounds", "name": "West Goshen Community Park", "address": "West Chester", "minutes": 10, "features": {"Bathroom": "Y", "Shade": "minimal", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "Y", "Baseball": "Y"}, "notes": null}, {"category": "Playgrounds", "name": "East Bradford Park", "address": "835 Kenmara Drive West Chester", "minutes": 11, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "Y", "Basketball": "N", "Volleyball": "Y", "Baseball": "Y"}, "notes": "sand pit"}, {"category": "Playgrounds", "name": "Pocopson Park", "address": "477 Locust Grove Road West Chester", "minutes": 11, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "N", "Baseball": "Y"}, "notes": null}, {"category": "Playgrounds", "name": "Coopersmith Park", "address": "101 Spring Lane West Chester", "minutes": 11, "features": {"Bathroom": "N", "Shade": "minimal", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "Y", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "East Goshen Park", "address": "1661 Paoli Pike West Chester", "minutes": 15, "features": {"Bathroom": "Y", "Shade": "minimal", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "Y", "Baseball": "Y"}, "notes": "large sand pit, zipline"}, {"category": "Playgrounds", "name": "Bacton Hill Park- All Abilities", "address": "14 N Bacton Hill Rd, Malvern", "minutes": 17, "features": {"Bathroom": null, "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Ollie Owl's Nature Playground", "address": "1199 Cannery Road Coatesville", "minutes": 17, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "N", "Splash Pad": "N", "Paved Walking Trail": "N", "Water to Wade In": "Y", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Shadyside Park", "address": "1645 shadyside road West Chester", "minutes": 17, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "N", "Baseball": "Y"}, "notes": "sand pit"}, {"category": "Playgrounds", "name": "Thornbury Park", "address": "19342 Glen Mills Road Glen Mills", "minutes": 17, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "N", "Baseball": "Y"}, "notes": "sand pit"}, {"category": "Playgrounds", "name": "Kerr Park- All Abilities", "address": "Downingtown", "minutes": 17, "features": {"Bathroom": "Y", "Shade": "Minimal", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "Y", "Fenced In": "Y", "Tennis": "Y", "Basketball": "Y", "Volleyball": "N", "Baseball": "Y"}, "notes": "disc golf"}, {"category": "Playgrounds", "name": "Anson B Nixon Park", "address": "405 N Walnut Road Kennett Square", "minutes": 17, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "N", "Water to Wade In": "Y", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "Y", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Lloyd Park", "address": "403 Lloyd Ave Downingtown", "minutes": 19, "features": {"Bathroom": "Y", "Shade": "in creek", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "Y", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "Y", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Bell Tavern Park", "address": "100 bell tavern road Downingtown", "minutes": 19, "features": {"Bathroom": "Y", "Shade": "Minimal", "Pavilion": "Y", "Splash Pad": "Y", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "Y", "Basketball": "Y", "Volleyball": "Y", "Baseball": "N"}, "notes": "roller hockey rink"}, {"category": "Playgrounds", "name": "Drexel Lodge Park- Train Themed", "address": "Newtown Square", "minutes": 20, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "N", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Greentree Park", "address": "18 Grubb Rd, Malvern", "minutes": 21, "features": {"Bathroom": "Y", "Shade": "Minimal", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "Y", "Volleyball": "N", "Baseball": "N"}, "notes": "Sand Pit"}, {"category": "Playgrounds", "name": "Concord Township Park", "address": "725 Smithbridge Road Glen Mills", "minutes": 22, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "Y", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Wilson Farm Park- all abilities", "address": "500 Lee Road Chesterbrook", "minutes": 23, "features": {"Bathroom": "Y", "Shade": "Minimal", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "Y", "Volleyball": "Y", "Baseball": "Y"}, "notes": null}, {"category": "Playgrounds", "name": "Rose Tree Park- All Abilities", "address": "1671 N Providence Rd, Media", "minutes": 28, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Can-Do Playground- All Abilities- $8 entrance fee", "address": "4360 Weldin Road Wilmington", "minutes": 30, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Veterans Memorial Park- All Abilities", "address": "Lawrence Road, Broomall", "minutes": 31, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": "Bocce ball, horseshoe"}, {"category": "Playgrounds", "name": "Linvilla Orchards", "address": "137 W Knowelton Road Media", "minutes": 31, "features": {"Bathroom": "Y", "Shade": "minimal", "Pavilion": "N", "Splash Pad": "N", "Paved Walking Trail": "N", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Media Tot lot", "address": "73 E 3rd Street Media", "minutes": 32, "features": {"Bathroom": "N", "Shade": "Y", "Pavilion": "N", "Splash Pad": "N", "Paved Walking Trail": "N", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Ashbridge Park", "address": "1301 West Montgomery Ave Rosemont", "minutes": 32, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "N", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "Y", "Fenced In": "Y", "Tennis": "Y", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Freedom Playground", "address": "9000 Parkview Drive Haverford", "minutes": 33, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "Mister", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": "sand pit"}, {"category": "Playgrounds", "name": "Encke Park", "address": "305 Iven Ave, Radnor", "minutes": 34, "features": {"Bathroom": null, "Shade": "N", "Pavilion": "N", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "Y", "Fenced In": "Y", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "Y"}, "notes": "skate park"}, {"category": "Playgrounds", "name": "Black Rock Park", "address": "1286 Black Rock Rd, Phoenixville", "minutes": 34, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "minimal", "Tennis": "Y", "Basketball": "Y", "Volleyball": "N", "Baseball": "Y"}, "notes": "Skate park"}, {"category": "Playgrounds", "name": "Manderach Playground", "address": "180 Swamp Pike Limerick", "minutes": 41, "features": {"Bathroom": "Y", "Shade": "N", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "Y", "Volleyball": "Y", "Baseball": "Y"}, "notes": null}, {"category": "Playgrounds", "name": "Smith Memorial Playground & Playhouse", "address": "2100 S 24th Street Philadelphia", "minutes": 42, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "N", "Splash Pad": "N", "Paved Walking Trail": null, "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Fountain of Youth Spray Park", "address": "251 Manatawny Street Pottstown", "minutes": 43, "features": {"Bathroom": "Y", "Shade": "Y", "Pavilion": "N", "Splash Pad": "Y", "Paved Walking Trail": "N", "Water to Wade In": "N", "Fenced In": "N", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Herron Playground", "address": "250 Reed Street Philadelphia", "minutes": 48, "features": {"Bathroom": "Y", "Shade": "minimal", "Pavilion": "N", "Splash Pad": "Y", "Paved Walking Trail": "N", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "Y", "Volleyball": "N", "Baseball": "N"}, "notes": null}, {"category": "Playgrounds", "name": "Kid's Castle- All abilities", "address": "425 Wells Road Doylestown", "minutes": 59, "features": {"Bathroom": "Y", "Shade": "minimal", "Pavilion": "Y", "Splash Pad": "N", "Paved Walking Trail": "Y", "Water to Wade In": "N", "Fenced In": "Y", "Tennis": "N", "Basketball": "N", "Volleyball": "N", "Baseball": "N"}, "notes": null}], "Animals": [{"category": "Animals", "name": "Bailey's Dairy Farm", "address": "1821 Lenape Unionville Road West Chester", "minutes": 11, "details": "small store for veggies and milk, feed goats, pigs, sheep"}, {"category": "Animals", "name": "Highland Orchards", "address": "1000 Marshalton Thorndale Road West Chester", "minutes": 13, "details": "Pick your own Orchard, Farmers Market, Goats and Chickens"}, {"category": "Animals", "name": "Springton Manor Farm", "address": "860 Springton Road Glenmoore", "minutes": 29, "details": "Creek, small walking trail"}, {"category": "Animals", "name": "Linvilla Orchards", "address": "137 W Knowelton Road Media", "minutes": 31, "details": "Playground, greenhouse, farm market, fall activities"}, {"category": "Animals", "name": "Upper Schuylkill Valley Park", "address": "1615 Black Rock Road Royersford", "minutes": 36, "details": "Walking path, schuylkill river"}, {"category": "Animals", "name": "Brandywine Zoo", "address": "1001 N Park Drive Wilmington, de", "minutes": 33, "details": "Kids $7, Adults $9"}, {"category": "Animals", "name": "Sandy Hill Farm", "address": "Plymouth Meeting", "minutes": 37, "details": null}, {"category": "Animals", "name": "Elmwood Park Zoo", "address": "1661 Harding Blvd Norristown", "minutes": 37, "details": "Adult and Kids $12.95"}, {"category": "Animals", "name": "Plumpton Park Zoo", "address": "1416 Telegraph Road Rising Sun, MD", "minutes": 40, "details": "Kids $12, Adults $19"}, {"category": "Animals", "name": "Ryerss Farm", "address": "1710 Ridge Rd, Pottstown", "minutes": 41, "details": "Visit and feed aged horses"}, {"category": "Animals", "name": "Rose Bridge Farm Sanctuary", "address": "1314 Limekiln Pike, Dresher", "minutes": 44, "details": "Fee varies. feed animals, hike with goats, story time with animals"}, {"category": "Animals", "name": "Cherry Crest Adventure Farm", "address": "150 Cherry Hill Road Ronks", "minutes": 46, "details": "$18-$23, Slides, pedal carts, animals, wagon rides, apple blaster, corn barn, straw bale tunnel, "}, {"category": "Animals", "name": "The Lil' Country Store", "address": "264 Paradise Lane Ronks", "minutes": 47, "details": "Mini Horse farm, goats, alpacas, chickens, ride horses"}, {"category": "Animals", "name": "Philadelphia Zoo", "address": "3400 W Girard Ave Philadelphia", "minutes": 55, "details": "Must reserve time slot. Adults and Children $16, Parking $17"}, {"category": "Animals", "name": "Adventure Aquarium", "address": "1 Riverside Drive Camden, NJ", "minutes": 57, "details": "Must reserve time slot. Adults $28-45, kids $19-35"}], "Inside": [{"category": "Inside", "name": "Lulu's Casita", "address": "109 N High Street West Chester", "minutes": 7, "fee": "$12 first child, $8 next child", "details": null}, {"category": "Inside", "name": "American Helicopter Museum", "address": "1220 American Boulevard West Chester", "minutes": 14, "fee": "$15/adult, Discounts for kids, Under 2 free, participate with ArtReach $2 admission", "details": "Some helicopters to climb in"}, {"category": "Inside", "name": "Oasis Family Fun Center", "address": "35 Lacrue Ave Glen Mills", "minutes": 18, "fee": "4 Yr+- $8", "details": "Indoor Playground, lazer maze, climbing wall, arcade games"}, {"category": "Inside", "name": "Bounce U", "address": "Exton", "minutes": 16, "fee": "$15/child", "details": null}, {"category": "Inside", "name": "Jungle Land", "address": "490 Lancaster Ave, Malvern", "minutes": 19, "fee": "Kid $15, Adult $5", "details": "Must Reserve, 3 hour windows"}, {"category": "Inside", "name": "Charming Star Playroom", "address": "4627 West Chester Pike Newtown Square", "minutes": 20, "fee": "$13/child, first 2 adults free", "details": "Must Reserve, 3 hour windows"}, {"category": "Inside", "name": "Jumpers Family Fun Zone", "address": "5117 West Chester Pike Newtown Square", "minutes": 20, "fee": 11, "details": "Indoor playground, inflatables"}, {"category": "Inside", "name": "Imagination Street", "address": "111 Dowlin Forge Road Exton", "minutes": 22, "fee": "$15/kid, $5/adult", "details": "No walk ins, 2 hour slot"}, {"category": "Inside", "name": "Sensory Fit", "address": "226 Exton Square Mall, Exton, PA", "minutes": 23, "fee": "$20/kid ", "details": "ages 1-8"}, {"category": "Inside", "name": "King of Prussia Mall", "address": "160 N Gulph Rd, King of Prussia", "minutes": 24, "fee": 0, "details": "3 indoor play areas"}, {"category": "Inside", "name": "Sunny Day Play Cafe- Open October 15", "address": "747 w cypress street Kennett Square", "minutes": 25, "fee": 15, "details": "2 hour window, ages 0-8"}, {"category": "Inside", "name": "Arnold's family fun center", "address": "220 West Drive Phoenixville", "minutes": 33, "fee": "Varies", "details": "Go Karts, laser tag, bumper cars, arcade, mini golf, rock wall, bounce, bowling"}, {"category": "Inside", "name": "Bette's Family Fun Center", "address": "2971 W Duttons Mill Road Aston", "minutes": 32, "fee": "$10+", "details": "Arcade, indoor playground"}, {"category": "Inside", "name": "Legoland", "address": "500 W Germantown Pike, Plymouth Meeting", "minutes": 35, "fee": "~$25", "details": null}, {"category": "Inside", "name": "Chatter Splatter", "address": "537 Foundry Rd, Eagleville", "minutes": 36, "fee": 12, "details": "indoor play area"}, {"category": "Inside", "name": "Delaware Childrens Museum", "address": "550 Justison Street Wilmington", "minutes": 37, "fee": 12, "details": null}, {"category": "Inside", "name": "Jungle Wonder", "address": "238 West Ridge Pike Royersford", "minutes": 42, "fee": null, "details": "Arcade, mini golf, indoor playground, bowling"}, {"category": "Inside", "name": "Smith Memorial Playground & Playhouse", "address": "2100 S 24th Street Philadelphia", "minutes": 42, "fee": "No Fee", "details": "Indoor Playhouse, outdoor playgrounds"}, {"category": "Inside", "name": "Railroad Museum of PA", "address": "300 Gap Road Strasburg", "minutes": 46, "fee": "Kids $8, Adults $10", "details": null}, {"category": "Inside", "name": "Choo Choo Barn", "address": "226 Gap Road Strasburg", "minutes": 48, "fee": "Kids $6, Adults $10", "details": null}, {"category": "Inside", "name": "Please Touch Museum", "address": "Philadelphia", "minutes": 53, "fee": 22, "details": "No Walk in"}, {"category": "Inside", "name": "Adventure Aquarium", "address": "1 Riverside Drive Camden, NJ", "minutes": 57, "fee": "Must reserve time slot. Adults $28-45, kids $19-35", "details": null}, {"category": "Inside", "name": "Lancaster Science Factory", "address": "454 New Holland Ave Lancaster", "minutes": "1 hr", "fee": 12, "details": null}, {"category": "Inside", "name": "Tiny Town", "address": "533 Janet Ave Lancaster", "minutes": "1 Hr", "fee": 15, "details": "Indoor Playhouses, 3 hr slot"}, {"category": "Inside", "name": "Hands-On House", "address": "721 Landis Valley Road Lancaster", "minutes": "1 hr 3 min", "fee": "Kids $12, Adults $10.50", "details": "Childrens museum"}], "Outdoor": [{"category": "Outdoor", "name": "Shaw's Bridge Park", "address": "274 South Creek Road West Chester", "minutes": 7, "features": {"Bathroom": "N", "Paved Trail": "N", "Hiking Trail": "Y", "Playground": "N", "Stream": "Y"}, "details": null}, {"category": "Outdoor", "name": "Stroud Preserve", "address": "454 North Creek Road West Chester", "minutes": 8, "features": {"Bathroom": "N", "Paved Trail": "N", "Hiking Trail": "Y", "Playground": "N", "Stream": null}, "details": "Kayaking"}, {"category": "Outdoor", "name": "Highland Orchards", "address": "1000 Marshalton Thorndale Road West Chester", "minutes": 13, "features": {"Bathroom": "Y", "Paved Trail": "N", "Hiking Trail": "N", "Playground": "N", "Stream": "N"}, "details": "Pick your own Orchard, Farmers Market, Goats and Chickens"}, {"category": "Outdoor", "name": "Harmony Hill Nature Area", "address": "1200 Skelp Level Road Downingtown", "minutes": 13, "features": {"Bathroom": null, "Paved Trail": "Y", "Hiking Trail": "Y", "Playground": "N", "Stream": "Y"}, "details": null}, {"category": "Outdoor", "name": "Treehouse World", "address": "1442 Phoenixville Pike West Chester", "minutes": 14, "features": {"Bathroom": "Y", "Paved Trail": "N", "Hiking Trail": "N", "Playground": "Y", "Stream": "N"}, "details": "Toddler time $12, Adult $7.95"}, {"category": "Outdoor", "name": "ChesLen Preserve", "address": "1199 Cannery Road Coatesville", "minutes": 17, "features": {"Bathroom": "Y", "Paved Trail": "N", "Hiking Trail": "Y", "Playground": "Y", "Stream": "Y"}, "details": null}, {"category": "Outdoor", "name": "Longwood Gardens", "address": "1001 Longwood Road Kennett Square", "minutes": 15, "features": {"Bathroom": "Y", "Paved Trail": "Y", "Hiking Trail": "N", "Playground": "N", "Stream": "N"}, "details": "Entrance fee"}, {"category": "Outdoor", "name": "Struble Trail", "address": "Downingtown", "minutes": 18, "features": {"Bathroom": null, "Paved Trail": "Y", "Hiking Trail": null, "Playground": "N", "Stream": "Y"}, "details": null}, {"category": "Outdoor", "name": "Newlin Grist Mill Park", "address": "219 Cheyney Rd, Glen Mills", "minutes": 19, "features": {"Bathroom": "Y", "Paved Trail": null, "Hiking Trail": "Y", "Playground": "N", "Stream": "Y"}, "details": null}, {"category": "Outdoor", "name": "Brandywine Outfitters Inc", "address": "2096 Strasburg Road Coatesville", "minutes": 18, "features": {"Bathroom": null, "Paved Trail": null, "Hiking Trail": null, "Playground": "N", "Stream": "Y"}, "details": "Zipline, ropes course, kayak, canoe rentals"}, {"category": "Outdoor", "name": "Ridley Creek State Park", "address": "1023 Sycamore Mills Rd, Media", "minutes": 22, "features": {"Bathroom": "Y", "Paved Trail": "Y", "Hiking Trail": "Y", "Playground": "N", "Stream": "Y"}, "details": null}, {"category": "Outdoor", "name": "Tyler Arboretum", "address": "515 Painter Rd, Media", "minutes": 23, "features": {"Bathroom": "Y", "Paved Trail": "Y", "Hiking Trail": "Y", "Playground": "N", "Stream": "N"}, "details": "$10-$18 admission"}, {"category": "Outdoor", "name": "Jenkins Arboretum", "address": "631 Berwyn Baptist Rd, Devon", "minutes": 24, "features": {"Bathroom": "Y", "Paved Trail": "Y", "Hiking Trail": null, "Playground": "N", "Stream": "N"}, "details": "Free admission"}, {"category": "Outdoor", "name": "Marsh Creek State Park", "address": "675 Park Rd, Downingtown", "minutes": 27, "features": {"Bathroom": "Y", "Paved Trail": "Y", "Hiking Trail": "Y", "Playground": "N", "Stream": "Y"}, "details": "kayak, boat rental, pool"}, {"category": "Outdoor", "name": "Linvilla Orchards", "address": "137 W Knowelton Road Media", "minutes": 31, "features": {"Bathroom": "Y", "Paved Trail": null, "Hiking Trail": "N", "Playground": "Y", "Stream": "N"}, "details": "animals, garden center, seasonal activities, food"}, {"category": "Outdoor", "name": "Wilmington & Western Railroad", "address": "2201 Newport Gap Pike, Wilmington", "minutes": 33, "features": {"Bathroom": null, "Paved Trail": "N", "Hiking Trail": "N", "Playground": "N", "Stream": "N"}, "details": "Ride on trains. Fee varies"}, {"category": "Outdoor", "name": "Cherry Crest Adventure Farm", "address": "150 Cherry Hill Road Ronks", "minutes": 46, "features": {"Bathroom": "Y", "Paved Trail": null, "Hiking Trail": null, "Playground": "Y", "Stream": "N"}, "details": "$18-$23, Slides, pedal carts, animals, wagon rides, apple blaster, corn barn, straw bale tunnel, "}, {"category": "Outdoor", "name": "AdventureWoods at Awbury Arboretum", "address": "6060 Ardleigh Street Philadelphia", "minutes": 46, "features": {"Bathroom": "Y", "Paved Trail": null, "Hiking Trail": null, "Playground": "N", "Stream": "N"}, "details": "April-October, Free"}, {"category": "Outdoor", "name": "Strasburg Railroad", "address": "301 Gap Road Ronks", "minutes": 49, "features": {"Bathroom": null, "Paved Trail": null, "Hiking Trail": null, "Playground": null, "Stream": null}, "details": "$30-35, 45 minute ride, train museum"}, {"category": "Outdoor", "name": "Dutch Wonderland", "address": "2249 E Lincoln Highway Lancaster", "minutes": 53, "features": {"Bathroom": null, "Paved Trail": null, "Hiking Trail": null, "Playground": null, "Stream": null}, "details": "Amusement Park"}]};
+    const categories = ["All", "Playgrounds", "Animals", "Inside", "Outdoor"];
+    const categoryIcons = {
+      "Playgrounds": "🛝",
+      "Animals": "🐐",
+      "Inside": "🏠",
+      "Outdoor": "🌿"
+    };
+
+    let activeCategory = "All";
+
+    function numericMinutes(value) {
+      if (typeof value === "number") return value;
+      const match = String(value || "").match(/\d+/);
+      return match ? Number(match[0]) : 999;
+    }
+
+    function allItems() {
+      return Object.values(DATA).flat();
+    }
+
+
+    function renderStats() {
+      const stats = [
+        [allItems().length, "Total places"],
+        [DATA.Playgrounds.length, "Playgrounds"],
+        [DATA.Inside.length, "Indoor ideas"],
+        [DATA.Outdoor.length + DATA.Animals.length, "Outdoor and animal"]
+      ];
+      document.getElementById("stats").innerHTML = stats.map(([value, label]) =>
+        `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`
+      ).join("");
+    }
+
+    function renderPills() {
+      document.getElementById("categoryPills").innerHTML = categories.map(category =>
+        `<button class="pill ${activeCategory === category ? "active" : ""}" data-category="${category}">
+          ${category === "All" ? "Everything" : category}
+        </button>`
+      ).join("");
+
+      document.querySelectorAll(".pill").forEach(button => {
+        button.addEventListener("click", () => {
+          activeCategory = button.dataset.category;
+          renderPills();
+          renderCards();
+        });
+      });
+    }
+
+    function searchableText(item) {
+      return JSON.stringify(item).toLowerCase();
+    }
+
+    function isFree(item) {
+      const combined = [item.name, item.fee, item.details, item.notes]
+        .filter(value => value !== null && value !== undefined)
+        .join(" ")
+        .toLowerCase();
+
+      if (item.fee === 0 || /\b(no fee|free admission|under 2 free|free)\b/.test(combined)) return true;
+      if (/\$|entrance fee|admission|fee varies|\bfee\b|\bcost\b/.test(combined)) return false;
+      return ["Playgrounds", "Outdoor", "Animals"].includes(item.category);
+    }
+
+    function filteredItems() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const maxMinutes = Number(document.getElementById("timeFilter").value);
+      const freeOnly = document.getElementById("freeFilter").value === "free";
+
+      return allItems().filter(item => {
+        const categoryMatch =
+          activeCategory === "All" ||
+          activeCategory === item.category;
+        const timeMatch = numericMinutes(item.minutes) <= maxMinutes;
+        const queryMatch = !query || searchableText(item).includes(query);
+        const costMatch = !freeOnly || isFree(item);
+        return categoryMatch && timeMatch && queryMatch && costMatch;
+      }).sort((a, b) => numericMinutes(a.minutes) - numericMinutes(b.minutes));
+    }
+
+    function featureClass(value) {
+      const text = String(value || "").toLowerCase();
+      if (text === "y" || text === "yes") return "yes";
+      if (text === "n" || text === "no") return "";
+      return value ? "special" : "";
+    }
+
+    function featureLabel(label, value) {
+      if (value === null || value === undefined || value === "") return "";
+      const text = String(value);
+      if (text.toLowerCase() === "n") return "";
+      if (text.toLowerCase() === "y") return `<span class="feature yes">${label}</span>`;
+      return `<span class="feature special">${label}: ${escapeHtml(text)}</span>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function driveText(value) {
+      if (typeof value === "number") return `${value} min`;
+      return escapeHtml(value || "Time not listed");
+    }
+
+    function cardDetails(item) {
+      const lines = [];
+      if (item.fee !== undefined && item.fee !== null && item.fee !== "") {
+        const feeText = typeof item.fee === "number" ? `$${item.fee}` : item.fee;
+        lines.push(`<p class="detail-line"><strong>Fee:</strong> ${escapeHtml(feeText)}</p>`);
+      }
+      if (item.details) lines.push(`<p class="detail-line">${escapeHtml(item.details)}</p>`);
+      if (item.notes) lines.push(`<p class="detail-line"><strong>Other:</strong> ${escapeHtml(item.notes)}</p>`);
+
+      if (item.features) {
+        const chips = Object.entries(item.features)
+          .map(([label, value]) => featureLabel(label, value))
+          .filter(Boolean)
+          .join("");
+        if (chips) lines.push(`<div class="feature-list">${chips}</div>`);
+      }
+      return lines.join("");
+    }
+
+    function renderCards() {
+      const items = filteredItems();
+      const title = activeCategory === "All" ? "All places" : activeCategory;
+      document.getElementById("resultsTitle").textContent = title;
+      document.getElementById("resultsCount").textContent = `${items.length} place${items.length === 1 ? "" : "s"} shown`;
+
+      const container = document.getElementById("cards");
+      if (!items.length) {
+        container.innerHTML = `<div class="empty-state">No places match those filters.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => {
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address || item.name)}`;
+
+        return `
+          <article class="card">
+            <div class="card-top">
+              <div>
+                <span class="category-tag">${categoryIcons[item.category] || ""} ${escapeHtml(item.category)}</span>
+                <h3>${escapeHtml(item.name)}</h3>
+                <p class="address">${escapeHtml(item.address || "Address not listed")}</p>
+                ${isFree(item) ? '<span class="free-badge">Free</span>' : ''}
+              </div>
+              <div class="time-badge">${driveText(item.minutes)}</div>
+            </div>
+            <div class="card-body">${cardDetails(item)}</div>
+            <div class="card-actions">
+              <a class="map-link" href="${mapUrl}" target="_blank" rel="noopener">Open in Google Maps</a>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+    }
+
+    function comparisonCell(value) {
+      if (value === null || value === undefined || value === "") return `<td>—</td>`;
+      const text = String(value);
+      const lower = text.toLowerCase();
+      if (lower === "y") return `<td class="cell-yes">Yes</td>`;
+      if (lower === "n") return `<td class="cell-no">No</td>`;
+      return `<td class="cell-special">${escapeHtml(text)}</td>`;
+    }
+
+    let comparisonSort = { key: "minutes", direction: "asc" };
+
+    function comparisonSortValue(item, key) {
+      if (key === "name") return item.name || "";
+      if (key === "minutes") return numericMinutes(item.minutes);
+      if (key === "notes") return item.notes || "";
+      const value = item.features[key];
+      const normalized = String(value || "").toLowerCase();
+      if (normalized === "y") return 2;
+      if (normalized === "n" || normalized === "") return 0;
+      return 1;
+    }
+
+    function sortIndicator(key) {
+      if (comparisonSort.key !== key) return '<span class="sort-indicator">↕</span>';
+      return `<span class="sort-indicator">${comparisonSort.direction === "asc" ? "↑" : "↓"}</span>`;
+    }
+
+    function renderComparison() {
+      const fields = ["Bathroom","Shade","Pavilion","Splash Pad","Paved Walking Trail","Water to Wade In","Fenced In","Tennis","Basketball","Volleyball","Baseball"];
+      const header = `
+        <thead><tr>
+          <th class="sortable" data-sort="name">Playground ${sortIndicator("name")}</th>
+          <th class="sortable" data-sort="minutes">Drive ${sortIndicator("minutes")}</th>
+          ${fields.map(field => `<th class="sortable" data-sort="${field}">${field} ${sortIndicator(field)}</th>`).join("")}
+          <th class="sortable" data-sort="notes">Other ${sortIndicator("notes")}</th>
+        </tr></thead>`;
+
+      const sorted = DATA.Playgrounds.slice().sort((a, b) => {
+        const aValue = comparisonSortValue(a, comparisonSort.key);
+        const bValue = comparisonSortValue(b, comparisonSort.key);
+        let result;
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          result = aValue - bValue;
+        } else {
+          result = String(aValue).localeCompare(String(bValue), undefined, { numeric: true, sensitivity: "base" });
+        }
+        return comparisonSort.direction === "asc" ? result : -result;
+      });
+
+      const body = sorted.map(item => `
+          <tr>
+            <td>${escapeHtml(item.name)}<br><small style="color:#6f6b82;font-weight:500">${escapeHtml(item.address || "")}</small></td>
+            <td>${driveText(item.minutes)}</td>
+            ${fields.map(field => comparisonCell(item.features[field])).join("")}
+            ${comparisonCell(item.notes)}
+          </tr>
+        `).join("");
+
+      document.getElementById("comparisonTable").innerHTML = header + `<tbody>${body}</tbody>`;
+
+      document.querySelectorAll("#comparisonTable th.sortable").forEach(headerCell => {
+        headerCell.addEventListener("click", () => {
+          const key = headerCell.dataset.sort;
+          if (comparisonSort.key === key) {
+            comparisonSort.direction = comparisonSort.direction === "asc" ? "desc" : "asc";
+          } else {
+            comparisonSort = { key, direction: "asc" };
+          }
+          renderComparison();
+        });
+      });
+    }
+
+    document.querySelectorAll(".tab-button").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".tab-button").forEach(tab => tab.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(panel => panel.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(button.dataset.tab).classList.add("active");
+      });
+    });
+
+    document.getElementById("searchInput").addEventListener("input", renderCards);
+    document.getElementById("timeFilter").addEventListener("change", renderCards);
+    document.getElementById("freeFilter").addEventListener("change", renderCards);
+
+    renderStats();
+    renderPills();
+    renderCards();
+    renderComparison();
+  </script>
+</body>
+</html>
