@@ -657,6 +657,72 @@
       }
       .category-pills { grid-column: auto; }
     }
+
+
+    /* Desktop filter layout fix */
+    .controls > * { min-width: 0; }
+    .search-wrap input { min-width: 0; }
+    .category-pills { min-width: 0; }
+    .amenity-filter-section { min-width: 0; overflow: hidden; }
+    .amenity-buttons { max-width: 100%; }
+
+    @media (min-width: 1050px) {
+      .controls {
+        grid-template-columns: minmax(240px, 1.2fr) minmax(190px, .7fr) minmax(150px, .55fr) minmax(300px, 1.35fr);
+        grid-template-areas:
+          "search drive cost category"
+          "features features features features";
+        align-items: start;
+        column-gap: 16px;
+        row-gap: 18px;
+        padding: 18px;
+      }
+
+      .controls > .search-wrap { grid-area: search; align-self: end; }
+      .controls > .filter-section:nth-of-type(1) { grid-area: drive; }
+      .controls > .filter-section:nth-of-type(2) { grid-area: cost; }
+      .controls > .category-pills { grid-area: category; align-self: end; }
+      .controls > .amenity-filter-section { grid-area: features; }
+
+      .category-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .category-pills .pill,
+      .category-pills .pill:nth-child(4),
+      .category-pills .pill:nth-child(5) {
+        flex: 0 1 auto;
+        width: auto;
+        max-width: 100%;
+      }
+
+      .filter-heading-row {
+        width: 100%;
+      }
+
+      .clear-filter-button {
+        flex: 0 0 auto;
+        margin-left: auto;
+      }
+
+      .amenity-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+    }
+
+    @media (min-width: 1050px) and (max-width: 1220px) {
+      .controls {
+        grid-template-columns: minmax(220px, 1fr) minmax(180px, .8fr) minmax(140px, .6fr) minmax(260px, 1.2fr);
+      }
+      .filter-button,
+      .pill { padding-left: 11px; padding-right: 11px; }
+    }
+
   </style>
 </head>
 <body>
