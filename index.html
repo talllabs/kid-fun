@@ -284,6 +284,12 @@
       padding: 18px 18px 8px;
     }
 
+    .category-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
     .category-tag {
       display: inline-flex;
       border-radius: 999px;
@@ -783,17 +789,83 @@
       return numberMatch ? Number(numberMatch[0]) : 999;
     }
 
+    function normalizeAddress(value) {
+      return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function mergeUniqueText(values) {
+      const seen = new Set();
+      return values
+        .filter(value => value !== null && value !== undefined && String(value).trim() !== "")
+        .map(value => String(value).trim())
+        .filter(value => {
+          const key = normalizeSearchText(value);
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .join(" • ");
+    }
+
     function allItems() {
-      return Object.values(DATA).flat();
+      const rawItems = Object.values(DATA).flat();
+      const groups = new Map();
+
+      rawItems.forEach((item, index) => {
+        const normalized = normalizeAddress(item.address);
+        const key = normalized || `__no_address_${index}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
+      });
+
+      return [...groups.values()].map(group => {
+        if (group.length === 1) {
+          const item = { ...group[0] };
+          item.categories = [item.category];
+          return item;
+        }
+
+        const categories = [...new Set(group.map(item => item.category))];
+        const names = [...new Set(group.map(item => item.name).filter(Boolean))];
+        const mergedFeatures = {};
+
+        group.forEach(item => {
+          Object.entries(item.features || {}).forEach(([label, value]) => {
+            if (!isPositiveFeature(mergedFeatures[label]) && value !== null && value !== undefined && value !== "") {
+              mergedFeatures[label] = value;
+            }
+          });
+        });
+
+        return {
+          category: categories[0],
+          categories,
+          name: names.length === 1 ? names[0] : names.join(" / "),
+          address: group.find(item => item.address)?.address || "",
+          minutes: Math.min(...group.map(item => numericMinutes(item.minutes)).filter(value => value !== 999)),
+          fee: mergeUniqueText(group.map(item => item.fee)),
+          details: mergeUniqueText(group.map(item => item.details)),
+          notes: mergeUniqueText(group.map(item => item.notes)),
+          features: mergedFeatures,
+          mergedNames: names
+        };
+      });
     }
 
 
     function renderStats() {
+      const items = allItems();
+      const hasCategory = (item, category) => (item.categories || [item.category]).includes(category);
       const stats = [
-        [allItems().length, "Total places"],
-        [DATA.Playgrounds.length, "Playgrounds"],
-        [DATA.Inside.length, "Indoor ideas"],
-        [DATA.Outdoor.length + DATA.Animals.length, "Outdoor and animal"]
+        [items.length, "Total places"],
+        [items.filter(item => hasCategory(item, "Playgrounds")).length, "Playgrounds"],
+        [items.filter(item => hasCategory(item, "Inside")).length, "Indoor ideas"],
+        [items.filter(item => hasCategory(item, "Outdoor") || hasCategory(item, "Animals")).length, "Outdoor and animal"]
       ];
       document.getElementById("stats").innerHTML = stats.map(([value, label]) =>
         `<div class="stat"><strong>${value}</strong><span>${label}</span></div>`
@@ -837,7 +909,8 @@
       const searchableParts = [
         item.name,
         item.address,
-        item.category,
+        ...(item.categories || [item.category]),
+        ...(item.mergedNames || []),
         item.fee,
         item.details,
         item.notes,
@@ -892,7 +965,8 @@
 
       if (item.fee === 0 || /\b(no fee|free admission|under 2 free|free)\b/.test(combined)) return true;
       if (/\$|entrance fee|admission|fee varies|\bfee\b|\bcost\b/.test(combined)) return false;
-      return ["Playgrounds", "Outdoor", "Animals"].includes(item.category);
+      const itemCategories = item.categories || [item.category];
+      return itemCategories.some(category => ["Playgrounds", "Outdoor", "Animals"].includes(category));
     }
 
     function filteredItems() {
@@ -901,13 +975,14 @@
       const freeOnly = activeCostFilter === "free";
 
       return allItems().filter(item => {
+        const itemCategories = item.categories || [item.category];
         const categoryMatch =
           activeCategory === "All" ||
-          activeCategory === item.category;
+          itemCategories.includes(activeCategory);
         const timeMatch = numericMinutes(item.minutes) <= maxMinutes;
         const queryMatch = matchesSearch(item, query);
         const costMatch = !freeOnly || isFree(item);
-        const amenityMatch = activeAmenities.size === 0 || (item.category === "Playgrounds" && item.features && [...activeAmenities].every(amenity => isPositiveFeature(item.features[amenity])));
+        const amenityMatch = activeAmenities.size === 0 || (itemCategories.includes("Playgrounds") && item.features && [...activeAmenities].every(amenity => isPositiveFeature(item.features[amenity])));
         return categoryMatch && timeMatch && queryMatch && costMatch && amenityMatch;
       }).sort((a, b) => numericMinutes(a.minutes) - numericMinutes(b.minutes));
     }
@@ -979,7 +1054,7 @@
           <article class="card">
             <div class="card-top">
               <div>
-                <span class="category-tag">${categoryIcons[item.category] || ""} ${escapeHtml(item.category)}</span>
+                <div class="category-tags">${(item.categories || [item.category]).map(category => `<span class="category-tag">${categoryIcons[category] || ""} ${escapeHtml(category)}</span>`).join("")}</div>
                 <h3>${escapeHtml(item.name)}</h3>
                 <p class="address">${escapeHtml(item.address || "Address not listed")}</p>
                 ${isFree(item) ? '<span class="free-badge">Free</span>' : ''}
