@@ -1231,8 +1231,9 @@
       if (key === "notes") return item.notes || "";
       const value = item.features[key];
       const normalized = String(value || "").toLowerCase();
-      if (normalized === "y") return 2;
-      if (normalized === "n" || normalized === "") return 0;
+      // For feature sorting, show confirmed Yes values first, then special notes, then No or blank.
+      if (normalized === "y") return 0;
+      if (normalized === "n" || normalized === "") return 2;
       return 1;
     }
 
@@ -1405,10 +1406,17 @@
       });
     });
 
-    document.getElementById("mobileCompareSort").addEventListener("change", event => {
-      comparisonSort = { key: event.target.value, direction: "asc" };
+    const mobileCompareSort = document.getElementById("mobileCompareSort");
+
+    function applyMobileComparisonSort(event) {
+      const selectedKey = event.currentTarget.value;
+      comparisonSort = { key: selectedKey, direction: "asc" };
       renderComparison();
-    });
+    }
+
+    // Input updates immediately on mobile. Change provides a fallback for all browsers.
+    mobileCompareSort.addEventListener("input", applyMobileComparisonSort);
+    mobileCompareSort.addEventListener("change", applyMobileComparisonSort);
 
 
     renderStats();
